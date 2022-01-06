@@ -3,6 +3,7 @@
 use crate::frame::frame_errors::{FrameError, ParseError};
 use crate::frame::value::SerializeValuesError;
 use crate::statement::Consistency;
+use bytes::Bytes;
 use std::io::ErrorKind;
 use std::sync::Arc;
 use thiserror::Error;
@@ -36,7 +37,7 @@ pub enum QueryError {
 }
 
 /// An error sent from the database in response to a query
-/// as described in the [specification](https://github.com/apache/cassandra/blob/5ed5e84613ef0e9664a774493db7d2604e3596e0/doc/native_protocol_v4.spec#L1029)  
+/// as described in the [specification](https://github.com/apache/cassandra/blob/5ed5e84613ef0e9664a774493db7d2604e3596e0/doc/native_protocol_v4.spec#L1029)
 #[derive(Error, Debug, Clone, PartialEq, Eq)]
 pub enum DbError {
     /// The submitted query has a syntax error
@@ -181,7 +182,10 @@ pub enum DbError {
     #[error(
         "Tried to execute a prepared statement that is not prepared. Driver shoud prepare it again"
     )]
-    Unprepared,
+    Unprepared {
+        /// Statement id of the requested prepared query
+        statement_id: Bytes,
+    },
 
     /// Internal server error. This indicates a server-side bug
     #[error("Internal server error. This indicates a server-side bug")]
